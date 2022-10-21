@@ -28,9 +28,9 @@ jobs:
       continueOnError: true
 
     - task: NodeTool@0
-      displayName: 'Use Node 12.x'
+      displayName: 'Use Node 14.x'
       inputs:
-        versionSpec: 12.x
+        versionSpec: 14.x
 
     - task: Npm@1
       displayName: 'npm install --global @microsoft/rush'
@@ -106,6 +106,20 @@ jobs:
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)/drop'
         ArtifactName: drop
+
+    # Delete pnpm files
+    - task: DeleteFiles@1
+      inputs:
+        #SourceFolder: # Optional
+        Contents: './common/temp' 
+        #RemoveSourceFolder: # Optional
+
+    # Delete pnpm lock yaml
+    - task: DeleteFiles@1
+      inputs:
+        #SourceFolder: # Optional
+        Contents: './common/config/rush/pnpm-lock.yaml' 
+        #RemoveSourceFolder: # Optional       
 
     - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
       displayName: 'Component Detection'

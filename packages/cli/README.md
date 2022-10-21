@@ -7,7 +7,7 @@ botframework-cli
 [![License](https://img.shields.io/npm/l/@microsoft/botframework-cli)](https://github.com/microsoft/botframework-cli/blob/master/packages/cli/package.json)
 
 # Dependency
-Node v12
+Node v14
 
 
 # Usage
@@ -22,6 +22,7 @@ $ npm install -g @microsoft/botframework-cli
 * [`bf chatdown`](#bf-chatdown)
 * [`bf chatdown:convert`](#bf-chatdownconvert)
 * [`bf config`](#bf-config)
+* [`bf config:remove`](#bf-configremove)
 * [`bf config:set`](#bf-configset)
 * [`bf config:set:luis`](#bf-configsetluis)
 * [`bf config:set:qnamaker`](#bf-configsetqnamaker)
@@ -35,6 +36,7 @@ $ npm install -g @microsoft/botframework-cli
 * [`bf dialog:verify PATTERNS`](#bf-dialogverify-patterns)
 * [`bf help [COMMAND]`](#bf-help-command)
 * [`bf lg`](#bf-lg)
+* [`bf lg:analyze`](#bf-lganalyze)
 * [`bf lg:expand`](#bf-lgexpand)
 * [`bf lg:translate`](#bf-lgtranslate)
 * [`bf lg:verify`](#bf-lgverify)
@@ -64,8 +66,19 @@ $ npm install -g @microsoft/botframework-cli
 * [`bf luis:version:import`](#bf-luisversionimport)
 * [`bf luis:version:list`](#bf-luisversionlist)
 * [`bf luis:version:rename`](#bf-luisversionrename)
+* [`bf orchestrator`](#bf-orchestrator)
+* [`bf orchestrator:add`](#bf-orchestratoradd)
+* [`bf orchestrator:basemodel:get`](#bf-orchestratorbasemodelget)
+* [`bf orchestrator:basemodel:list`](#bf-orchestratorbasemodellist)
+* [`bf orchestrator:build`](#bf-orchestratorbuild)
+* [`bf orchestrator:create`](#bf-orchestratorcreate)
+* [`bf orchestrator:interactive`](#bf-orchestratorinteractive)
+* [`bf orchestrator:query`](#bf-orchestratorquery)
+* [`bf orchestrator:remove`](#bf-orchestratorremove)
+* [`bf orchestrator:test`](#bf-orchestratortest)
 * [`bf plugins`](#bf-plugins)
 * [`bf plugins:install PLUGIN`](#bf-pluginsinstall-plugin)
+* [`bf plugins:link PLUGIN`](#bf-pluginslink-plugin)
 * [`bf plugins:list`](#bf-pluginslist)
 * [`bf plugins:uninstall [PLUGIN]`](#bf-pluginsuninstall-plugin)
 * [`bf qnamaker`](#bf-qnamaker)
@@ -157,6 +170,21 @@ OPTIONS
 
 _See code: [@microsoft/bf-cli-config](https://github.com/microsoft/botframework-cli/tree/master/packages/config/src/commands/config/index.ts)_
 
+## `bf config:remove`
+
+Removes the specified key from the config file
+
+```
+USAGE
+  $ bf config:remove
+
+OPTIONS
+  -h, --help     config:remove help
+  -k, --key=key  (required) Name of the key to remove
+```
+
+_See code: [@microsoft/bf-cli-config](https://github.com/microsoft/botframework-cli/tree/master/packages/config/src/commands/config/remove.ts)_
+
 ## `bf config:set`
 
 Adds the specified key and value to the config file
@@ -184,6 +212,7 @@ USAGE
 OPTIONS
   -h, --help                         show CLI help
   --appId=appId                      LUIS application Id
+  --armToken=armToken                User`s ARM token used to validate azure accounts information)
   --authoringKey=authoringKey        LUIS cognitive services authoring key (aka Ocp-Apim-Subscription-Key).
   --endpoint=endpoint                LUIS application endpoint hostname, ex: <region>.api.cognitive.microsoft.com
   --subscriptionKey=subscriptionKey  LUIS cognitive services subscription key (aka Ocp-Apim-Subscription-Key)
@@ -395,6 +424,33 @@ OPTIONS
 
 _See code: [@microsoft/bf-lg-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/lg/src/commands/lg/index.ts)_
 
+## `bf lg:analyze`
+
+Analyze templates in .lg files to show all the places where a template is used
+
+```
+USAGE
+  $ bf lg:analyze
+
+OPTIONS
+  -e, --external-functions=function1,function2  Pass a list of external functions and add them to Expression functions,
+                                                seprated by ",". for example, "function1,function2,function3"
+
+  -f, --force                                   If --out flag is provided with the path to an existing file, overwrites
+                                                that file
+
+  -h, --help                                    lg:analyze help
+
+  -i, --in=in                                   (required) LG File or folder that contains .lg file(s)
+
+  -o, --out=out                                 Output file or folder name. If not specified stdout will be used as
+                                                output
+
+  -r, --recurse                                 Consider sub-folders to find .lg file(s)
+```
+
+_See code: [@microsoft/bf-lg-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/lg/src/commands/lg/analyze.ts)_
+
 ## `bf lg:expand`
 
 Expand one or all templates in .lg file(s). Expand an inline expression.
@@ -455,7 +511,7 @@ OPTIONS
   -h, --help     lg:verify help
   -i, --in=in    (required) Folder that contains .lg file.
   -o, --out=out  Output file or folder name. If not specified stdout will be used as output
-  -r, --recurse  Considere sub-folders to find .lg file(s)
+  -r, --recurse  Considers sub-folders to find .lg file(s)
 ```
 
 _See code: [@microsoft/bf-lg-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/lg/src/commands/lg/verify.ts)_
@@ -485,10 +541,12 @@ USAGE
 OPTIONS
   -h, --help                                 show CLI help
   --accountName=accountName                  (required) Account name
-  --appId=appId                              (required) LUIS application Id (defaults to config:LUIS:appId)
 
-  --armToken=armToken                        (required) The bearer authorization header to use; containing the user`s
-                                             ARM token used to validate azure accounts information
+  --appId=appId                              (required) LUIS application Id (defaults to config:set:luis --appId
+                                             {APPLICATION_ID})
+
+  --armToken=armToken                        (required) User`s ARM token used to validate azure accounts information
+                                             (default: config:set:luis --armToken {ARM_TOKEN})
 
   --azureSubscriptionId=azureSubscriptionId  (required) Azure Subscription Id
 
@@ -499,7 +557,7 @@ OPTIONS
   --resourceGroup=resourceGroup              (required) Resource Group
 
   --subscriptionKey=subscriptionKey          (required) LUIS cognitive services subscription key (default:
-                                             config:LUIS:subscriptionKey)
+                                             config:set:luis --subscriptionKey {SUBSCRIPTION_KEY})
 ```
 
 _See code: [@microsoft/bf-luis-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/luis/src/commands/luis/application/assignazureaccount.ts)_
@@ -533,7 +591,7 @@ EXAMPLE
 
        $ bf luis:application:create --endpoint {ENDPOINT} --subscriptionKey {SUBSCRIPTION_KEY} --name {NAME} --culture 
   {CULTURE}
-       --domain {DOMAIN} --description {DESCRIPTION} --versionId {INITIAL_VERSION_ID} --usageScenario {USAGE_SCENARIO}
+       --domain {DOMAIN} --description {DESCRIPTION} --versionId {INITIAL_VERSION_ID}
 ```
 
 _See code: [@microsoft/bf-luis-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/luis/src/commands/luis/application/create.ts)_
@@ -750,14 +808,14 @@ USAGE
 OPTIONS
   -f, --force                      If --out flag is provided with the path to an existing file, overwrites that file
   -h, --help                       luis:build command help
-  -i, --in=in                      Lu file or folder
+  -i, --in=in                      (required) Lu file or folder
 
   -o, --out=out                    Output folder name to write out .dialog and settings files. If not specified,
                                    application setting will be output to console
 
-  --authoringKey=authoringKey      LUIS authoring key
+  --authoringKey=authoringKey      (required) LUIS authoring key. Refered to as subscriptionKey in other cli commands.
 
-  --botName=botName                Bot name
+  --botName=botName                (required) Bot name
 
   --defaultCulture=defaultCulture  Culture code for the content. Infer from .lu if available. Defaults to en-us
 
@@ -768,7 +826,7 @@ OPTIONS
 
   --directVersionPublish           Available only in direct version query. Do not publish to staging or production
 
-  --endpoint=endpoint              Luis authoring endpoint for publishing
+  --endpoint=endpoint              (required) Luis authoring endpoint for publishing
 
   --fallbackLocale=fallbackLocale  Locale to be used at the fallback if no locale specific recognizer is found. Only
                                    valid if --out is set
@@ -836,7 +894,14 @@ OPTIONS
 
   --config=config          Path to config file of mapping rules
 
+  --exclude=exclude        Excludes folders under the input directory, separated by ",". If not specified, all luis and
+                           qna files will be included in the cross-train
+
+  --[no-]inner-dialog      Only do inner dialog cross train
+
   --intentName=intentName  [default: _Interruption] Interruption intent name
+
+  --[no-]intra-dialog      Only do intra dialog cross train
 
   --log                    Writes out log messages to console
 ```
@@ -1005,16 +1070,29 @@ USAGE
   $ bf luis:translate
 
 OPTIONS
-  -f, --force                  If --out flag is provided with the path to an existing file, overwrites that file
-  -h, --help                   luis:translate help
-  -i, --in=in                  Source .lu file(s) or LUIS application JSON model
-  -o, --out=out                Output folder name. If not specified stdout will be used as output
-  -r, --recurse                Indicates if sub-folders need to be considered to file .lu file(s)
-  --srclang=srclang            Source lang code. Auto detect if missing.
-  --tgtlang=tgtlang            (required) Comma separated list of target languages.
-  --translate_comments         When set, machine translate comments found in .lu file
-  --translate_link_text        When set, machine translate link description in .lu file
-  --translatekey=translatekey  (required) Machine translation endpoint key.
+  -f, --force                                If --out flag is provided with the path to an existing file, overwrites
+                                             that file
+
+  -h, --help                                 luis:translate help
+
+  -i, --in=in                                Source .lu file(s) or LUIS application JSON model
+
+  -o, --out=out                              Output folder name. If not specified stdout will be used as output
+
+  -r, --recurse                              Indicates if sub-folders need to be considered to file .lu file(s)
+
+  --srclang=srclang                          Source lang code. Auto detect if missing.
+
+  --subscription_region=subscription_region  Required request header if using a Cognitive Services Resource. Optional if
+                                             using a Translator Resource.
+
+  --tgtlang=tgtlang                          (required) Comma separated list of target languages.
+
+  --translate_comments                       When set, machine translate comments found in .lu file
+
+  --translate_link_text                      When set, machine translate link description in .lu file
+
+  --translatekey=translatekey                (required) Machine translation endpoint key.
 ```
 
 _See code: [@microsoft/bf-luis-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/luis/src/commands/luis/translate.ts)_
@@ -1205,6 +1283,295 @@ EXAMPLE
 
 _See code: [@microsoft/bf-luis-cli](https://github.com/microsoft/botframework-cli/tree/master/packages/luis/src/commands/luis/version/rename.ts)_
 
+## `bf orchestrator`
+
+Display Orchestrator CLI available commands
+
+```
+USAGE
+  $ bf orchestrator
+
+OPTIONS
+  -h, --help  Orchestrator commands help
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/index.ts)_
+
+## `bf orchestrator:add`
+
+Add examples from .lu/.qna/.json/.blu files, LUIS app(s) and QnaMaker kb(s) to Orchestrator snapshot file.
+
+```
+USAGE
+  $ bf orchestrator:add
+
+OPTIONS
+  -d, --debug
+  -e, --entityModel=entityModel  Path to Orchestrator entity base model directory.
+  -f, --force                    If --out flag is provided with the path to an existing file, overwrites that file.
+  -h, --help                     Orchestrator add command help
+  -i, --in=in                    Path to example file (.lu/.qna/.json/.blu).
+  -k, --key=key                  LUIS authoring key or QnAMaker service key if type = luis/qna.
+  -m, --model=model              Path to Orchestrator model directory.
+
+  -o, --out=out                  Path where generated Orchestrator example file will be placed. Default to current
+                                 working directory.
+
+  -t, --type=type                Type of input (luis/qna/file).
+
+  -v, --version=version          Applies only for type=luis, LUIS app version
+
+  --dialog                       Generate multi language or cross train Orchestrator recognizers.
+
+  --endpoint=endpoint            LUIS/QnAMaker endpoint.
+
+  --id=id                        LUIS app id or QnAMaker kb id if type = luis/qna.
+
+  --routingName=routingName      Routing name, default to file name.
+
+EXAMPLE
+	
+       $ bf orchestrator:add 	
+       $ bf orchestrator:add --in ./path/to/file/ --snapshot ./path/to/snapshot/	
+       $ bf orchestrator:add --in ./path/to/file/ --snapshot ./path/to/snapshot/ --out ./path/to/output/	
+       $ bf orchestrator:add --in ./path/to/file/ --out ./path/to/output/ --model ./path/to/model/directory
+       $ bf orchestrator:add -t luis --id LUIS_APP_ID --version LUIS_APP_VERSION --key LUIS_KEY --routingName l_Weather 
+  --endpoint 
+       $ bf orchestrator:add -t qna --id QNA_KB  --key QNA_KB_SERVICE_KEY --routingName q_kb
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/add.ts)_
+
+## `bf orchestrator:basemodel:get`
+
+Gets Orchestrator base model
+
+```
+USAGE
+  $ bf orchestrator:basemodel:get
+
+OPTIONS
+  -d, --debug
+  -h, --help             Orchestrator basemodel:get command help
+
+  -o, --out=out          Optional. Path to where Orchestrator base model will be saved to. Default to current working
+                         directory.
+
+  -v, --verbose          Enable verbose logging
+
+  --getEntity            Optional. Download default entity model at the same time, which will be placed in the entity
+                         subfolder of the output path.
+
+  --versionId=versionId  Optional. Base model version to download -- reference basemodel:list output for options.  If
+                         not specified, default model will be downloaded.
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/basemodel/get.ts)_
+
+## `bf orchestrator:basemodel:list`
+
+Lists all Orchestrator base model versions
+
+```
+USAGE
+  $ bf orchestrator:basemodel:list
+
+OPTIONS
+  -h, --help  Orchestrator basemodel:list command help
+  -r, --raw   Optional. Raw output
+  --all       Optional. Display all models
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/basemodel/list.ts)_
+
+## `bf orchestrator:build`
+
+Creates Orchestrator snapshot file and Orchestrator dialog definition file (optional) for each lu file in input folder.
+
+```
+USAGE
+  $ bf orchestrator:build
+
+OPTIONS
+  -d, --debug
+  -e, --entityModel=entityModel  Path to Orchestrator entity base model directory.
+  -h, --help                     Orchestrator build command help
+  -i, --in=in                    Path to lu file or folder with lu files.
+  -m, --model=model              Path to Orchestrator model.
+
+  -o, --out=out                  Path where Orchestrator snapshot/dialog file(s) will be placed. Default to current
+                                 working directory.
+
+  --dialog                       Generate multi language or cross train Orchestrator recognizers.
+
+  --luconfig=luconfig            Path to luconfig.json.
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/build.ts)_
+
+## `bf orchestrator:create`
+
+Create orchestrator snapshot (.blu) file from .lu/.qna/.json/.tsv/.dispatch files, which represent bot modules
+
+```
+USAGE
+  $ bf orchestrator:create
+
+OPTIONS
+  -d, --debug
+  -e, --entityModel=entityModel  Path to Orchestrator entity base model directory.
+  -h, --help                     Orchestrator create command help
+
+  -i, --in=in                    The path to source label files from where orchestrator example file will be created
+                                 from. Default to current working directory.
+
+  -m, --model=model              Path to Orchestrator base model directory.
+
+  -o, --out=out                  Path where generated Orchestrator snapshot file will be placed. Default to current
+                                 working directory.
+
+  --hierarchical                 Add hierarchical labels based on .lu/.qna file name.  Resulting snapshot file will
+                                 contain.lu/.qna file name as labels instead of the intents defined in the .lu file(s).
+
+  --refresh                      Refetch LUIS app(s)/QnAMaker kb(s) previously added and recreate Orchestrator snapshot.
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/create.ts)_
+
+## `bf orchestrator:interactive`
+
+Real-time interaction with Orchestrator model and analysis. Can return score of given utterance using previously created orchestrator examples
+
+```
+USAGE
+  $ bf orchestrator:interactive
+
+OPTIONS
+  -d, --debug
+  -e, --entityModel=entityModel  Path to Orchestrator entity base model directory.
+  -h, --help                     show CLI help
+  -l, --in=in                    Optional path to a previously created Orchestrator .blu file.
+  -m, --model=model              (required) Directory or hosting Orchestrator config and base model files.
+  -o, --out=out                  Optional Directory where analysis and output files will be placed.
+
+EXAMPLE
+
+       $ bf orchestrator:interactive --in=./path/to/snapshot/file --out=./path/to/output/folder/ 
+  --model=./path/to/model/directory
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/interactive.ts)_
+
+## `bf orchestrator:query`
+
+Query Orchestrator base model and a snapshot/train file
+
+```
+USAGE
+  $ bf orchestrator:query
+
+OPTIONS
+  -d, --debug
+  -e, --entityModel=entityModel  Path to Orchestrator entity base model directory.
+  -h, --help                     show CLI help
+  -i, --in=in                    (required) Path to a previously created Orchestrator snapshot (.blu file).
+
+  -l, --limit=limit              (optional) Limit of number of predictions. Default to 3. Less or equal to 0 for listing
+                                 all predictions.
+
+  -m, --model=model              (required) Path to Orchestrator base model directory.
+
+  -q, --query=query              (required) Query string to predict.
+
+EXAMPLE
+
+       $ bf orchestrator:query --in=./path/to/snapshot/file --query=hi --model=./path/to/base/model/directory
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/query.ts)_
+
+## `bf orchestrator:remove`
+
+Remove examples from LUIS app(s), QnaMaker kb(s) or .lu/.qna/.json files from Orchestrator snapshot file.
+
+```
+USAGE
+  $ bf orchestrator:remove
+
+OPTIONS
+  -d, --debug
+  -h, --help       Orchestrator remove command help
+  -i, --in=in      Path to example file (.lu/.qna/.json/.blu).
+  -t, --type=type  Type of input (luis/qna/file).
+  --id=id          LUIS app id or QnAMaker kb id if type = luis/qna.
+
+EXAMPLE
+	
+       $ bf orchestrator:remove 	
+       $ bf orchestrator:remove -t luis --id LUIS_APP_ID 
+       $ bf orchestrator:remove -t qna --id QNA_KB 
+       $ bf orchestrator:remove -t file -i FILE_PATH
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/remove.ts)_
+
+## `bf orchestrator:test`
+
+The "test" command can operate in three modes: test, evaluation, assessment.
+
+```
+USAGE
+  $ bf orchestrator:test
+
+OPTIONS
+  -d, --debug
+  -e, --entityModel=entityModel  Path to Orchestrator entity base model directory.
+  -h, --help                     show CLI help
+  -i, --in=in                    (required) Path to a previously created Orchestrator .blu file.
+
+  -m, --model=model              Optional directory for hosting Orchestrator config and base model files, not needed for
+                                 the "assessment" mode.
+
+  -o, --out=out                  (required) Directory where analysis and output files will be placed.
+
+  -p, --prediction=prediction    Optional path to a prediction label file, or comma-separated paths to a collection of
+                                 (e.g., crosss-valiaton) files.
+
+  -t, --test=test                Optional path to a test file. This option enable the "test" mode.
+
+DESCRIPTION
+  1) Test mode: test a collection of utterance/label samples loaded from a test file against
+         a previously generated Orchestrator .blu snapshot/train file,
+         and create a detailed train/test evaluation report.
+     2) Evaluation mode: create an leave-one-out cross validation (LOOCV) evaluation report
+         on a previously generated Orchestrator .blu snapshot/train file.
+     3) Assessment mode: assess a collection of utterance/label predictions against their ground-truth labels and
+         create an evaluation report. This mode can evaluate predictions produced by
+         other NLP or machine learning systems. There is no need for an Orchestrator base model.
+         Notice that, this mode is generic and can apply to evaluate any ML systems, learners, models,
+         and scenarios if a user can carefully construct the prediction and grounf-truth files by
+         the specification detailed below.
+         Essentially the key to a NLP data instance is a text (utterance, sentence, query, document, etc.), which
+         is the basis of all the features feeding to a ML model. For other ML systems, the key to
+         a data instance can be built directly from the features and put in place of text
+         in a prediction and ground-truth file.
+
+     The 'test' mode is activated if there is a '--test' argument set for a test file.
+     The 'assessment' mode is activated if there is a '--prediction' argument set for a prediction file.
+     If there is no '--test' or '--prediction' arguments, then "test" command runs on the 'evaluation' mode.
+
+EXAMPLE
+
+       $ bf orchestrator:test --in=./path/to/snapshot/file --test=./path/to/test/file/ --out=./path/to/output/ 
+  --model=./path/to/model/directory
+       $ bf orchestrator:test --in=./path/to/ground-truth/file --prediction=./path/to/prediction/file 
+  --out=./path/to/output/folder/
+       $ bf orchestrator:test --in=./path/to/snapshot/file --out=./path/to/output/folder/ 
+  [--model=./path/to/model/directory]
+```
+
+_See code: [@microsoft/bf-orchestrator-cli](https://github.com/microsoft/botframework-cli/src/commands/orchestrator/test.ts)_
+
 ## `bf plugins`
 
 Install, uninstall and show installed plugins
@@ -1247,6 +1614,29 @@ ALIASES
 ```
 
 _See code: [@microsoft/bf-cli-plugins](https://github.com/microsoft/botframework-cli/tree/master/packages/plugins/src/commands/plugins/install.ts)_
+
+## `bf plugins:link PLUGIN`
+
+Links a plugin into the BF CLI for development
+
+```
+USAGE
+  $ bf plugins:link PLUGIN
+
+ARGUMENTS
+  PATH  [default: .] path to plugin
+
+OPTIONS
+  -h, --help     show CLI help
+  -v, --verbose
+
+DESCRIPTION
+  Installation of a linked plugin will override a user-installed or core plugin.
+  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello' 
+  command will override the user-installed or core plugin implementation. This is useful for development work.
+```
+
+_See code: [@microsoft/bf-cli-plugins](https://github.com/microsoft/botframework-cli/tree/master/packages/plugins/src/commands/plugins/link.ts)_
 
 ## `bf plugins:list`
 
@@ -1878,16 +2268,29 @@ USAGE
   $ bf qnamaker:translate
 
 OPTIONS
-  -f, --force                  If --out flag is provided with the path to an existing file, overwrites that file
-  -h, --help                   qnamaker:translate help
-  -i, --in=in                  Source .qna file(s) or QnA maker application JSON model
-  -o, --out=out                Output folder name. If not specified stdout will be used as output
-  -r, --recurse                Indicates if sub-folders need to be considered to find .qna file(s)
-  --srclang=srclang            Source lang code. Auto detect if missing.
-  --tgtlang=tgtlang            (required) Comma separated list of target languages.
-  --translate_comments         When set, machine translate comments found in .qna file
-  --translate_link_text        When set, machine translate link description in .qna file
-  --translatekey=translatekey  (required) Machine translation endpoint key.
+  -f, --force                                If --out flag is provided with the path to an existing file, overwrites
+                                             that file
+
+  -h, --help                                 qnamaker:translate help
+
+  -i, --in=in                                Source .qna file(s) or QnA maker application JSON model
+
+  -o, --out=out                              Output folder name. If not specified stdout will be used as output
+
+  -r, --recurse                              Indicates if sub-folders need to be considered to find .qna file(s)
+
+  --srclang=srclang                          Source lang code. Auto detect if missing.
+
+  --subscription_region=subscription_region  Required request header if using a Cognitive Services Resource. Optional if
+                                             using a Translator Resource.
+
+  --tgtlang=tgtlang                          (required) Comma separated list of target languages.
+
+  --translate_comments                       When set, machine translate comments found in .qna file
+
+  --translate_link_text                      When set, machine translate link description in .qna file
+
+  --translatekey=translatekey                (required) Machine translation endpoint key.
 ```
 
 _See code: [@microsoft/bf-qnamaker](https://github.com/microsoft/botframework-cli/tree/master/packages/qnamaker/src/commands/qnamaker/translate.ts)_

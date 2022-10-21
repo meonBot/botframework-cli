@@ -87,7 +87,7 @@ describe('luis:cross-train tests for lu and qna contents', () => {
       expect(await compareLuFiles('./../../../interruptionGen/dia2.lu', './../../fixtures/verified/interruption3/dia2.lu')).to.be.true
       expect(await compareLuFiles('./../../../interruptionGen/dia3.lu', './../../fixtures/verified/interruption3/dia3.lu')).to.be.true
     })
-  
+
   test
     .stdout()
     .command(['luis:cross-train',
@@ -113,5 +113,78 @@ describe('luis:cross-train tests for lu and qna contents', () => {
     '--log'])
     .it('displays a warning if log is set true', ctx => {
       expect(ctx.stdout).to.contain('[WARN] line 1:0 - line 1:15: no utterances found for intent definition: "# hotelLocation"')
+    })
+
+  test
+    .stdout()
+    .command(['luis:cross-train',
+      '--in', `${path.join(__dirname, './../../fixtures/testcases/interruption5')}`,
+      '--intentName', '_Interruption',
+      '--config', `${path.join(__dirname, './../../fixtures/testcases/interruption5/mapping_rules.json')}`,
+      '--out', './interruptionGen',
+      '--force',
+      '--intra-dialog',
+      '--no-inner-dialog'])
+    .it('luis:cross training only do inner dialog', async () => {
+      expect(await compareLuFiles('./../../../interruptionGen/main.lu', './../../fixtures/verified/interruption6/main.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/main.qna', './../../fixtures/verified/interruption6/main.qna')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/dia1.lu', './../../fixtures/verified/interruption6/dia1.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/dia1.qna', './../../fixtures/verified/interruption6/dia1.qna')).to.be.true
+    })
+
+  test
+    .stdout()
+    .command(['luis:cross-train',
+      '--in', `${path.join(__dirname, './../../fixtures/testcases/interruption5')}`,
+      '--intentName', '_Interruption',
+      '--config', `${path.join(__dirname, './../../fixtures/testcases/interruption5/mapping_rules.json')}`,
+      '--out', './interruptionGen',
+      '--force',
+      '--inner-dialog',
+      '--no-intra-dialog'])
+    .it('luis:cross training only do intra dialog', async () => {
+      expect(await compareLuFiles('./../../../interruptionGen/main.lu', './../../fixtures/verified/interruption7/main.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/main.qna', './../../fixtures/verified/interruption7/main.qna')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/dia1.lu', './../../fixtures/verified/interruption7/dia1.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/dia1.qna', './../../fixtures/verified/interruption7/dia1.qna')).to.be.true
+    })
+
+    test
+    .stdout()
+    .command(['luis:cross-train',
+      '--in', `${path.join(__dirname, './../../fixtures/testcases/application')}`,
+      '--config', `${path.join(__dirname, './../../fixtures/testcases/application/cross-train.config')}`,
+      '--out', './interruptionGen',
+      '--force'])
+    .it('luis:cross training should able to import files out of current directory', async () => {
+      expect(await compareLuFiles('./../../../interruptionGen/application.lu', './../../fixtures/verified/interruption8/application.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/application.qna', './../../fixtures/verified/interruption8/application.qna')).to.be.true
+    })
+
+    test
+    .stdout()
+    .command(['luis:cross-train',
+      '--in', `${path.join(__dirname, './../../fixtures/testcases/testImportWithLocale')}`,
+      '--config', `${path.join(__dirname, './../../fixtures/testcases/testImportWithLocale/cross-train.config')}`,
+      '--out', './interruptionGen',
+      '--exclude', 'bin',
+      '--force'])
+    .it('luis:cross training should able to import files with locale and ignore files under the directory specified', async () => {
+      expect(await compareLuFiles('./../../../interruptionGen/ChitchatDialog.en-us.lu', './../../fixtures/verified/interruption9/ChitchatDialog.en-us.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/ChitchatDialog.en-us.qna', './../../fixtures/verified/interruption9/ChitchatDialog.en-us.qna')).to.be.true
+      expect(fs.existsSync('./../../../interruptionGen/extra.en-us.lu')).to.be.false
+      expect(fs.existsSync('./../../../interruptionGen/chitchat_professional.source.en-us.qna')).to.be.false
+    })
+
+    test
+    .stdout()
+    .command(['luis:cross-train',
+      '--in', `${path.join(__dirname, './../../fixtures/testcases/filterIntent')}`,
+      '--config', `${path.join(__dirname, './../../fixtures/testcases/filterIntent/cross-train.config')}`,
+      '--out', './interruptionGen',
+      '--force'])
+    .it('luis:cross training should able to import files with locale and ignore files under the directory specified', async () => {
+      expect(await compareLuFiles('./../../../interruptionGen/Application.lu', './../../fixtures/verified/interruption10/Application.lu')).to.be.true
+      expect(await compareLuFiles('./../../../interruptionGen/Application.qna', './../../fixtures/verified/interruption10/Application.qna')).to.be.true
     })
 })

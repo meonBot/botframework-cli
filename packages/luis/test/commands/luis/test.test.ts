@@ -75,7 +75,7 @@ describe('luis:test cli entity test', () => {
   .nock('https://westus.api.cognitive.microsoft.com', api => api
   .post(uri => uri.includes('apps'))
   .reply(200, {
-    "query":"accept all meetings for christmas party next week.","prediction":{"topIntent":"AcceptEventEntry","intents":{"AcceptEventEntry":{"score":0.948831439},"FindCalendarEntry":{"score":0.0371829346},"None":{"score":0.00728923827},"CreateCalendarEntry":{"score":0.007234955}},"entities":{"Subject":["christmas party"],"FromDate":["next week"],"$instance":{"Subject":[{"type":"Subject","text":"christmas party","startIndex":24,"length":15,"score":0.9657892,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}],"FromDate":[{"type":"FromDate","text":"next week","startIndex":40,"length":9,"score":0.966946542,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}]}}}
+    "query":"accept all meetings for christmas party next week.","prediction":{"topIntent":"AcceptEventEntry","intents":{"AcceptEventEntry":{"score":0.948831439},"FindCalendarEntry":{"score":0.0371829346},"None":{"score":0.00728923827},"CreateCalendarEntry":{"score":0.007234955}},"entities":{"Subject":["christmas party"],"FromDate":["next week"],"ordinalV2": [{"offset": 1, "relativeTo": "current"}], "$instance":{"Subject":[{"type":"Subject","text":"christmas party","startIndex":24,"length":15,"score":0.9657892,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}],"FromDate":[{"type":"FromDate","text":"next week","startIndex":40,"length":9,"score":0.966946542,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}]}}}
   })
   )
   .nock('https://westus.api.cognitive.microsoft.com', api => api
@@ -126,7 +126,6 @@ describe('luis:test cli entity test', () => {
     expect(await compareFiles('./../../../results/AllEntity.lu', './../../fixtures/testcases/lutest/output/AllEntity.lu')).to.be.true
   })
 })
-
 
 describe('luis:test cli role test', () => {
   before(async function(){
@@ -222,8 +221,6 @@ describe('luis:test cli Hierarchical entity test', () => {
   })
 })
 
-
-
 describe('luis:test normal test', () => {
   before(async function(){
     await fs.ensureDir(path.join(__dirname, './../../../results/'))
@@ -285,7 +282,7 @@ describe('luis:test normal test', () => {
     nock('https://westus.api.cognitive.microsoft.com')
     .post(uri => uri.includes('apps'))
     .reply(200, {
-      "query":"create a event with eden roth at 4pm today for 30 mins","prediction":{"topIntent":"CreateCalendarEntry","intents":{"CreateCalendarEntry":{"score":0.9999999},"None":{"score":4.94949234e-7},"FindCalendarEntry":{"score":4.29645354e-7},"AcceptEventEntry":{"score":3.24675227e-7}},"entities":{"FromTime":["4pm"],"FromDate":["today"],"Duration":["30 mins"],"$instance":{"FromTime":[{"type":"FromTime","text":"4pm","startIndex":33,"length":3,"score":0.9858761,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}],"FromDate":[{"type":"FromDate","text":"today","startIndex":37,"length":5,"score":0.9848769,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}],"Duration":[{"type":"Duration","text":"30 mins","startIndex":47,"length":7,"score":0.978632748,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}]}}}
+      "query":"create a event with eden roth at 4pm today for 30 mins","prediction":{"topIntent":"CreateCalendarEntry","intents":{"CreateCalendarEntry":{"score":0.9999999},"None":{"score":4.94949234e-7},"FindCalendarEntry":{"score":4.29645354e-7},"AcceptEventEntry":{"score":3.24675227e-7}},"entities":{"FromTime":["4pm"],"FromDate":["today"],"Duration":["30 mins"],"$instance":{"FromTime":[{"type":"FromTime","text":"4pm","startIndex":33,"length":3,"score":0.9858761,"modelTypeId":10,"modelType":"Entity Extractor","recognitionSources":["model"]}],"FromDate":[{"type":"FromDate","text":"today","startIndex":37,"length":5,"score":0.9848769,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}],"Duration":[{"type":"Duration","text":"30 mins","startIndex":47,"length":7,"score":0.978632748,"modelTypeId":1,"modelType":"Entity Extractor","recognitionSources":["model"]}]}}}
     })
 
     nock('https://westus.api.cognitive.microsoft.com')

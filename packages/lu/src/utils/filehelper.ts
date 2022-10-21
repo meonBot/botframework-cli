@@ -171,22 +171,35 @@ export async function detectLuContent(stdin: string, input: string) {
   return false
 }
 
-export async function getFilesContent(input: string, extType: string) {
+export async function getFilesContent(input: string, extType: string, ignoredFolders?: string[]) {
   let fileStat = await fs.stat(input)
   if (fileStat.isFile()) {
     const filePath = path.resolve(input)
     const content = await getContentFromFile(input)
-    return [{id: path.basename(filePath, extType), content}]
+    return [{id: path.basename(filePath, extType), content, fullPath: filePath}]
   }
 
   if (!fileStat.isDirectory()) {
     throw (new exception(retCode.errorCode.INVALID_INPUT_FILE, 'Sorry, ' + input + ' is not a folder or does not exist'))
   }
-  const paths = await globby([`**/*${extType}`], {cwd: input, dot: true})
+
+  const allPaths = (await globby([`**/*${extType}` ], {cwd: input, dot: true}))
+  let paths: string[] = []
+  if (ignoredFolders) {
+    for (const path of allPaths) {
+      const isIgnored = ignoredFolders.filter(e => path.startsWith(e)).length > 0
+      if (!isIgnored) {
+        paths.push(path)
+      }
+    }
+  } else {
+    paths = allPaths
+  }
+  
   return Promise.all(paths.map(async (item: string) => {
     const itemPath = path.resolve(path.join(input, item))
     const content = await getContentFromFile(itemPath)
-    return {id: path.basename(itemPath, extType), content}
+    return {id: path.basename(itemPath, extType), content, fullPath: itemPath}
   }))
 }
 
@@ -229,7 +242,7 @@ export function getParsedObjects(contents: {id: string, content: string}[], extT
   return parsedObjects
 }
 
-export function getConfigObject(configObject: any, intentName: string, verbose: boolean) {
+export function getConfigObject(configObject: any, intentName: string, verbose: boolean, trainingOpt: {inner: boolean; intra: boolean}) {
   let finalConfigObj = Object.create(null)
   let rootFileIds: string[] = []
   if (configObject) {
@@ -272,7 +285,8 @@ export function getConfigObject(configObject: any, intentName: string, verbose: 
     rootIds: rootFileIds,
     triggerRules: finalConfigObj,
     intentName,
-    verbose
+    verbose,
+    trainingOpt
   }
 
   return crossTrainConfig
@@ -283,35 +297,6 @@ export function parseJSON(input: string, appType: string) {
     return JSON.parse(input)
   } catch (error) {
     throw (new exception(retCode.errorCode.INVALID_INPUT_FILE, `Sorry, error parsing content as ${appType} JSON`))
-  }
-}
-
-export function getLuisCultureFromPath(file: string): string | null {
-  let fn = path.basename(file, path.extname(file))
-  let lang = path.extname(fn).substring(1)
-  switch (lang.toLowerCase()) {
-    case 'en-us':
-    case 'ar-ar':
-    case 'zh-cn':
-    case 'nl-nl':
-    case 'fr-fr':
-    case 'fr-ca':
-    case 'de-de':
-    case 'gu-in':
-    case 'hi-in':
-    case 'it-it':
-    case 'ja-jp':
-    case 'ko-kr':
-    case 'mr-in':
-    case 'pt-br':
-    case 'es-es':
-    case 'es-mx':
-    case 'ta-in':
-    case 'te-in':
-    case 'tr-tr':
-      return lang
-    default:
-      return null
   }
 }
 

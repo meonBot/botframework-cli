@@ -13,7 +13,7 @@ const compareLuFiles =  function(file1, file2) {
 
 
 describe('LU instance', function() {
-    const response = require('./../../fixtures/translation/serviceresponses/intentsAndutterances.json')
+    const response = require('./../../fixtures/translation/serviceresponses/intentsAndUtterances.json')
   
     before(function(){
       nock('https://api.cognitive.microsofttranslator.com')
@@ -28,4 +28,17 @@ describe('LU instance', function() {
         await luInstance.translate('xxxxxxx', 'fr', true, false)
         compareLuFiles(luInstance.content, result)
     });
+});
+
+describe('LU instance raw parsing', function() {
+  const response = require('./../../fixtures/lu_raw_parse/lu_sections.json')
+
+  it('Parse LU instance content to raw parse', async () => {
+      let luContent = await fs.readFile(path.join(__dirname, './../../fixtures/lu_raw_parse/lu_sections.lu'))
+      const luInstance = new LU(luContent.toString())
+      let result = luInstance.parse()
+      let sanitizedResult = JSON.stringify(result);
+      let sanitizedResponse = JSON.stringify(response);
+      compareLuFiles(JSON.parse(sanitizedResult), JSON.parse(sanitizedResponse));
+  });
 });

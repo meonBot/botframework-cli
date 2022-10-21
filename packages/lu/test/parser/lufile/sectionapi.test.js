@@ -9,6 +9,22 @@ const SectionOperator = require('./../../../src/parser/lufile/sectionOperator');
 const LUSectionTypes = require('./../../../src/parser/utils/enums/lusectiontypes');
 const NEWLINE = require('os').EOL;
 
+describe('luParser parse test', () => {
+    let luresource = undefined;
+    it('new Entity name should not use reserved keywords', () => {
+        let fileContent = 
+        `@ ml age\n@ prebuilt number`;
+
+        luresource = luparser.parse(fileContent);
+        assert.equal(luresource.Sections[0].Errors.length, 1);
+        assert.equal(luresource.Sections[0].Errors[0].Message, 'The model name age is reserved.');
+        assert.equal(luresource.Sections[0].Errors[0].Range.Start.Line, 1);
+        assert.equal(luresource.Sections[0].Errors[0].Range.Start.Character, 0);
+        assert.equal(luresource.Sections[0].Errors[0].Range.End.Line, 1);
+        assert.equal(luresource.Sections[0].Errors[0].Range.End.Character, 9);
+    })
+});
+
 describe('Section CRUD tests for intent', () => {
     let luresource = undefined;
     

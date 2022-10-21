@@ -6,7 +6,7 @@
   "main": "lib/parser/index.js",
   "browser": "lib/parser/composerindex.js",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=14.0.0"
   },
   "files": [
     "/lib",
@@ -33,10 +33,10 @@
     ]
   },
   "dependencies": {
-    "@azure/cognitiveservices-luis-authoring": "4.0.0-preview.1",
-    "@azure/ms-rest-azure-js": "2.0.1",
     "@types/node-fetch": "~2.5.5",
-    "antlr4": "~4.8.0",
+    "antlr4": "4.9.2",
+    "axios": "~0.24.0",
+    "https-proxy-agent": "^5.0.0",
     "chalk": "2.4.1",
     "console-stream": "^0.1.1",
     "deep-equal": "^1.0.1",
@@ -45,8 +45,7 @@
     "get-stdin": "^6.0.0",
     "globby": "^10.0.1",
     "intercept-stdout": "^0.1.2",
-    "lodash": "^4.17.19",
-    "node-fetch": "~2.6.0",
+    "lodash": "^4.17.21",
     "semver": "^5.5.1",
     "tslib": "^2.0.3"
   },

@@ -8,7 +8,6 @@ const retCode = require('./enums/CLI-errors');
 const exception = require('./exception');
 const NEWLINE = require('os').EOL;
 const ANY_NEWLINE = /\r\n|\r|\n/g;
-const url = require('url');
 const hClasses = require('../lufile/classes/hclasses');
 const helpers = {
 
@@ -187,11 +186,8 @@ const helpers = {
         if (this.isUtteranceLinkRef(utterance)) return false;
 
         // patterns must have at least one [optional] and or one (group | text)
-        let detectPatternRegex = /(\[.*?\])|(\(.*?(\|.*?)+\))/gi;
+        let detectPatternRegex = /(\[.*(?<!\\)\])|(\(.*?(\|.*?)+(?<!\\)\))/gi;
         return detectPatternRegex.test(utterance);
-    },
-    hashCode : function(s) {
-        return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
     },
     /**
      * Helper to detect luis schema version based on content and update the final payload as needed.
@@ -567,6 +563,16 @@ const addIsRequiredProperty = function(item, phraseListInFinal = []) {
             && !item.features.find(fea => fea.featureName == feature.modelName)) {
             feature.featureName = feature.modelName;
             delete feature.modelName;
+        }
+
+        if (feature.featureName && feature.featureName.endsWith('*')) {
+            feature.featureName = feature.featureName.slice(0, feature.featureName.length - 1);
+            feature.isRequired = true;
+        }
+
+        if (feature.modelName && feature.modelName.endsWith('*')) {
+            feature.modelName = feature.modelName.slice(0, feature.modelName.length - 1);
+            feature.isRequired = true;
         }
 
         delete feature.featureType;

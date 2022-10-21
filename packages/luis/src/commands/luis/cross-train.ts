@@ -20,13 +20,15 @@ export default class LuisCrossTrain extends Command {
     config: flags.string({description: 'Path to config file of mapping rules'}),
     intentName: flags.string({description: 'Interruption intent name', default: '_Interruption'}),
     force: flags.boolean({char: 'f', description: 'If --out flag is provided with the path to an existing file, overwrites that file', default: false}),
-    log: flags.boolean({description: 'Writes out log messages to console', default: false})
+    log: flags.boolean({description: 'Writes out log messages to console', default: false}),
+    'inner-dialog': flags.boolean({description: 'Only do inner dialog cross train', default: true, allowNo: true}),
+    'intra-dialog': flags.boolean({description: 'Only do intra dialog cross train', default: true, allowNo: true}),
+    exclude: flags.string({description: 'Excludes folders under the input directory, separated by ",". If not specified, all luis and qna files will be included in the cross-train'})
   }
 
   async run() {
     try {
       const {flags} = this.parse(LuisCrossTrain)
-
       if (!flags.in) {
         throw new CLIError('Missing input. Please specify a folder with --in flag')
       }
@@ -39,7 +41,13 @@ export default class LuisCrossTrain extends Command {
         throw new CLIError('Missing cross train config. Please provide config file path by --config.')
       }
 
-      const trainedResult = await crossTrain.train(flags.in, flags.intentName, flags.config, flags.log)
+      let trainingOpt = {}
+      trainingOpt = {
+        inner: flags['inner-dialog'],
+        intra: flags['intra-dialog']
+      }
+
+      const trainedResult = await crossTrain.train(flags.in, flags.intentName, flags.config, flags.log, trainingOpt, flags.exclude)
 
       if (flags.out === undefined) {
         flags.out = path.join(process.cwd(), 'cross-trained')
@@ -80,7 +88,10 @@ export default class LuisCrossTrain extends Command {
             validatedPath = utils.validatePath(fileId + fileExt, '', force)
           }
 
-          await fs.writeFile(validatedPath, fileIdToLuResourceMap.get(fileId).Content, 'utf-8')
+          const composerSourceFileRegex = new RegExp(`[\\w-]+\\.source\\.([\\w-]+\\.)?${fileExt.substring(1)}`)
+          if (!composerSourceFileRegex.test(validatedPath)) {
+            await fs.writeFile(validatedPath, fileIdToLuResourceMap.get(fileId).Content, 'utf-8')
+          }
         } catch (err) {
           throw new CLIError(`Unable to write to file ${fileId}. Error: ${err.message}`)
         }
